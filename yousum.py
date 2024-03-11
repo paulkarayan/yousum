@@ -1,16 +1,13 @@
 import openai
-import os
 import ast
 import argparse
 
 
 def describe_transcript_with_llm(content):
     try:
-        # content = " ".join([line["text"] for line in content])
-
         # summarize the youtube transcript here:
         prep = f"""
-        You are a wisdom extraction service for text content.
+        You are a information extraction service for text content.
         You perform 2 separate and distinct steps for the input:
 
         STEP
@@ -98,7 +95,6 @@ def main():
     transcript = prime_the_data(file_path)
 
     ## then we process this transcript
-
     output = describe_transcript_with_llm(transcript)
     print(output)
 
