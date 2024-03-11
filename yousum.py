@@ -85,14 +85,14 @@ def main():
     parser.add_argument(
         "file_path",
         nargs="?",
-        default="OKY6BGcx37k.pk",
+        default="CO-6iqCum1w.pk",
         type=str,
         help="The YouTube video transcript to process",
     )
     args = parser.parse_args()
     file_path = args.file_path
 
-    ## first, run youtube_transcript_api OKY6BGcx37k > OKY6BGcx37k.pk
+    ## first, run youtube_transcript_api CO-6iqCum1w > CO-6iqCum1w.pk
 
     ## then we clean it up
     transcript = prime_the_data(file_path)
