@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Transcript Processor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex flex-col items-center justify-center min-h-screen">
+
+  <div class="max-w-md w-full">
+    <h1 class="text-3xl font-semibold text-center text-gray-800 mb-6">YouTube Transcript Processor</h1>
+    
+    <!-- Input Form -->
+    <div class="bg-white shadow-md rounded px-6 py-8">
+      <form id="youtubeForm" class="space-y-4">
+        <div>
+          <label for="youtubeUrl" class="block text-sm font-medium text-gray-700">YouTube URL</label>
+          <input type="url" id="youtubeUrl" name="youtubeUrl" required
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        </div>
+        
+        <button type="submit"
+                class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded focus:outline-none">
+          Process Transcript
+        </button>
+      </form>
+      
+      <!-- Error/Success Messages -->
+      <div id="messageBox" class="mt-4 hidden p-4 rounded-md"></div>
+    </div>
+
+    <!-- Output Display -->
+    <div id="outputBox" class="bg-white shadow-md rounded px-6 py-8 mt-6 hidden">
+      <h2 class="text-lg font-medium text-gray-800">Processed Output</h2>
+      <pre id="outputContent" class="mt-4 text-sm text-gray-700 whitespace-pre-wrap"></pre>
+    </div>
+  </div>
+
+  <script>
+    // Utility to extract YouTube slug from a URL
+    function extractSlug(url) {
+      const match = url.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([\w-]+)/) || url.match(/(?:https?:\/\/)?youtu\.be\/([\w-]+)/);
+      return match ? match[1] : null;
+    }
+
+    // DOM Elements
+    const form = document.getElementById("youtubeForm");
+    const messageBox = document.getElementById("messageBox");
+    const outputBox = document.getElementById("outputBox");
+    const outputContent = document.getElementById("outputContent");
+
+    // Handle form submission
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // Extract slug
+      const url = document.getElementById("youtubeUrl").value.trim();
+      const slug = extractSlug(url);
+
+      if (!slug) {
+        showMessage("Invalid YouTube URL. Please try again.", "error");
+        return;
+      }
+
+      try {
+        // API request
+        const response = await fetch(`http://127.0.0.1:8000/process_transcript/${slug}`, {
+          method: "GET",
+        });
+
+        if (!response.ok) {
+          const { detail } = await response.json();
+          showMessage(detail || "Error processing the transcript.", "error");
+          return;
+        }
+
+        // Process response
+        const data = await response.json();
+        outputBox.classList.remove("hidden");
+        outputContent.textContent = data.output || "No content returned.";
+        showMessage("Successfully processed transcript!", "success");
+      } catch (error) {
+        showMessage("An error occurred while processing the transcript. Please try again.", "error");
+      }
+    });
+
+    // Helper function to show messages
+    function showMessage(message, type) {
+      messageBox.classList.remove("hidden");
+      messageBox.textContent = message;
+
+      if (type === "error") {
+        messageBox.classList.add("bg-red-100", "text-red-700", "border-red-400");
+        messageBox.classList.remove("bg-green-100", "text-green-700", "border-green-400");
+      } else if (type === "success") {
+        messageBox.classList.add("bg-green-100", "text-green-700", "border-green-400");
+        messageBox.classList.remove("bg-red-100", "text-red-700", "border-red-400");
+      }
+    }
+  </script>
+</body>
+</html>
