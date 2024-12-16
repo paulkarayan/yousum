@@ -27,7 +27,14 @@
       </form>
       
       <!-- Error/Success Messages -->
-      <div id="messageBox" class="mt-4 hidden p-4 rounded-md"></div>
+      <div id="messageBox" class="mt-4 hidden p-4 rounded-md flex items-center space-x-2">
+  <!-- Spinner -->
+  <svg id="spinner" class="hidden w-5 h-5 text-indigo-500 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C3.58 0 0 3.58 0 8h4zm2 5.292V16c0 4.42 3.58 8 8 8v-4c-2.21 0-4-1.79-4-4v-1.708l-1.292 1.292a1 1 0 01-1.416 0l-1.292-1.292z"></path>
+  </svg>
+  <span id="messageText"></span>
+</div>
     </div>
 
     <!-- Output Display -->
@@ -43,61 +50,84 @@
       const match = url.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([\w-]+)/) || url.match(/(?:https?:\/\/)?youtu\.be\/([\w-]+)/);
       return match ? match[1] : null;
     }
+// DOM Elements
+const form = document.getElementById("youtubeForm");
+const messageBox = document.getElementById("messageBox");
+const messageText = document.getElementById("messageText");
+const spinner = document.getElementById("spinner");
+const outputBox = document.getElementById("outputBox");
+const outputContent = document.getElementById("outputContent");
 
-    // DOM Elements
-    const form = document.getElementById("youtubeForm");
-    const messageBox = document.getElementById("messageBox");
-    const outputBox = document.getElementById("outputBox");
-    const outputContent = document.getElementById("outputContent");
+// Show spinner
+function showSpinner() {
+  spinner.classList.remove("hidden");
+}
 
-    // Handle form submission
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+// Hide spinner
+function hideSpinner() {
+  spinner.classList.add("hidden");
+}
 
-      // Extract slug
-      const url = document.getElementById("youtubeUrl").value.trim();
-      const slug = extractSlug(url);
+// Show message with or without spinner
+function showMessage(message, type, showLoading = false) {
+  messageBox.classList.remove("hidden");
+  messageText.textContent = message;
 
-      if (!slug) {
-        showMessage("Invalid YouTube URL. Please try again.", "error");
-        return;
-      }
+  if (showLoading) {
+    showSpinner();
+  } else {
+    hideSpinner();
+  }
 
-      try {
-        // API request
-        const response = await fetch(`http://127.0.0.1:8000/process_transcript/${slug}`, {
-          method: "GET",
-        });
+  if (type === "error") {
+    messageBox.classList.add("bg-red-100", "text-red-700", "border-red-400");
+    messageBox.classList.remove("bg-green-100", "text-green-700", "border-green-400");
+  } else if (type === "success") {
+    messageBox.classList.add("bg-green-100", "text-green-700", "border-green-400");
+    messageBox.classList.remove("bg-red-100", "text-red-700", "border-red-400");
+  }
+}
 
-        if (!response.ok) {
-          const { detail } = await response.json();
-          showMessage(detail || "Error processing the transcript.", "error");
-          return;
-        }
+// Handle form submission
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-        // Process response
-        const data = await response.json();
-        outputBox.classList.remove("hidden");
-        outputContent.textContent = data.output || "No content returned.";
-        showMessage("Successfully processed transcript!", "success");
-      } catch (error) {
-        showMessage("An error occurred while processing the transcript. Please try again.", "error");
-      }
+  // Extract slug
+  const url = document.getElementById("youtubeUrl").value.trim();
+  const slug = extractSlug(url);
+
+  if (!slug) {
+    showMessage("Invalid YouTube URL. Please try again.", "error");
+    return;
+  }
+
+  try {
+    // Show spinner with message
+    showMessage("Processing transcript... please wait.", "success", true);
+
+    // API request
+    const response = await fetch(`http://127.0.0.1:8000/process_transcript/${slug}`, {
+      method: "GET",
     });
 
-    // Helper function to show messages
-    function showMessage(message, type) {
-      messageBox.classList.remove("hidden");
-      messageBox.textContent = message;
+    hideSpinner(); // Hide spinner after response
 
-      if (type === "error") {
-        messageBox.classList.add("bg-red-100", "text-red-700", "border-red-400");
-        messageBox.classList.remove("bg-green-100", "text-green-700", "border-green-400");
-      } else if (type === "success") {
-        messageBox.classList.add("bg-green-100", "text-green-700", "border-green-400");
-        messageBox.classList.remove("bg-red-100", "text-red-700", "border-red-400");
-      }
+    if (!response.ok) {
+      const { detail } = await response.json();
+      showMessage(detail || "Error processing the transcript.", "error");
+      return;
     }
+
+    // Process response
+    const data = await response.json();
+    outputBox.classList.remove("hidden");
+    outputContent.textContent = data.output || "No content returned.";
+    showMessage("Successfully processed transcript!", "success");
+  } catch (error) {
+    hideSpinner(); // Ensure spinner is hidden if there's an error
+    showMessage("An error occurred while processing the transcript. Please try again.", "error");
+  }
+});
   </script>
 </body>
 </html>
