@@ -129,8 +129,11 @@
 
     try {
       spinner.classList.remove("hidden");
-      const response = await fetch(`http://127.0.0.1:8000/process_transcript/${slug[1]}?api_key=${apiKey}`);
-      spinner.classList.add("hidden");
+      {{/*  const response = await fetch(`http://127.0.0.1:8000/process_transcript/${slug[1]}?api_key=${apiKey}`);
+        */}}
+        const response = await fetch(`app.piratehat.io/process_transcript/${slug[1]}?api_key=${apiKey}`);
+    
+        spinner.classList.add("hidden");
 
       if (!response.ok) {
         throw new Error("Failed to process transcript.");
