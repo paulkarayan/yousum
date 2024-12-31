@@ -5,8 +5,13 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound
 import argparse
 from openai import OpenAI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 app = FastAPI()
+
+# Mount the static folder
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Allow frontend to connect
 app.add_middleware(
@@ -33,10 +38,13 @@ def save_transcript(slug):
     return transcript_text
 
 
-@app.get("/")
+@app.get("/ping")
 async def root():
     return {"message": "Hello, World!"}
 
+@app.get("/")
+async def serve_index():
+    return FileResponse("static/index.html")
 
 # Endpoint to process a YouTube transcript
 @app.get("/process_transcript/{slug}")
