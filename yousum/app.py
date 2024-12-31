@@ -1,10 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import os
-from openai import OpenAI
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound
 import argparse
+from openai import OpenAI
 
 app = FastAPI()
 
@@ -17,9 +17,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Helper to check if a transcript already exists
 def transcript_exists(slug):
     return os.path.exists(f"{slug}.pk")
+
 
 # Helper to save transcript
 def save_transcript(slug):
@@ -30,13 +32,15 @@ def save_transcript(slug):
         file.write(transcript_text)
     return transcript_text
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello, World!"}
 
+
 # Endpoint to process a YouTube transcript
 @app.get("/process_transcript/{slug}")
-async def process_transcript(slug: str):
+async def process_transcript(slug, api_key):
     try:
         # Check if the transcript already exists
         if transcript_exists(slug):
@@ -45,16 +49,24 @@ async def process_transcript(slug: str):
         else:
             # Fetch and save transcript
             transcript_text = save_transcript(slug)
-        openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-        # Process transcript with OpenAI (e.g., summarize and extract facts)
+
+        # Use the provided OpenAI API key
+
+        openai_client = OpenAI(api_key=api_key)
+
         response = openai_client.chat.completions.create(
             model="gpt-4o",
-            messages=[{"role": "system", "content": f"""
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"""
                 You are an information extraction service. Perform the following:
                 STEP 0: Provide a SUMMARY of the content in 100 words or less.
                 STEP 1: Extract the 5-10 most interesting FACTS:
                 {transcript_text}
-                """,}],
+                """,
+                }
+            ],
             temperature=0.8,
             max_tokens=5000,
             top_p=0.8,
@@ -66,9 +78,13 @@ async def process_transcript(slug: str):
         return {"output": result}
 
     except TranscriptsDisabled:
-        raise HTTPException(status_code=400, detail="Transcripts are disabled for this video.")
+        raise HTTPException(
+            status_code=400, detail="Transcripts are disabled for this video."
+        )
     except NoTranscriptFound:
-        raise HTTPException(status_code=404, detail="No transcript found for this video.")
+        raise HTTPException(
+            status_code=404, detail="No transcript found for this video."
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 
@@ -81,6 +97,12 @@ def run_cli():
         type=str,
         help="The YouTube video slug to process (e.g., fLVHISUAqLU)",
     )
+    parser.add_argument(
+        "--api-key",
+        type=str,
+        required=True,
+        help="Your OpenAI API key",
+    )
     args = parser.parse_args()
 
     try:
@@ -91,23 +113,31 @@ def run_cli():
         else:
             transcript_text = save_transcript(args.slug)
 
-            response = openai.chat.completions.create(
-                model="gpt-4o",
-                messages=[{"role": "system", "content": f"""
-                    You are an information extraction service. Perform the following:
-                    STEP 0: Provide a SUMMARY of the content in 100 words or less.
-                    STEP 1: Extract the 5-10 most interesting FACTS:
-                    {transcript_text}
-                    """,}],
-                temperature=0.8,
-                max_tokens=5000,
-                top_p=0.8,
-                frequency_penalty=0.0,
-                presence_penalty=0.0,
-            )
+        # Use the provided OpenAI API key
+        openai_client = OpenAI(api_key=args.api_key)
 
-            result = response.choices[0].message.content
-            print(result)
+        response = openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"""
+                You are an information extraction service. Perform the following:
+                STEP 0: Provide a SUMMARY of the content in 100 words or less.
+                STEP 1: Extract the 5-10 most interesting FACTS:
+                {transcript_text}
+                """,
+                }
+            ],
+            temperature=0.8,
+            max_tokens=5000,
+            top_p=0.8,
+            frequency_penalty=0.0,
+            presence_penalty=0.0,
+        )
+        result = response.choices[0].message.content
+
+        return {"output": result}
 
     except TranscriptsDisabled:
         print("Transcripts are disabled for this video.")

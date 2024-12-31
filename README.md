@@ -1,18 +1,35 @@
 # YouSum - summarize a youtube video
 
-## the why
+## Master Your Time. Instantly Distill YouTube Knowledge.
 
-Has your eye ever been caught by a catchy YouTube video headline like:
-"Master your anxiety. Unleash your genius" whereby...
-Actor, author, and director Jesse Eisenberg demystifies the role of anxiety and self-doubt in leadership.
-?
+Save 9 minutes. Unleash your genius.
 
-But its 9:15 long and you know it's going to be like 3 bullet points worth of value?
+*The Problem:*
+YouTube titles like "Master Your Anxiety. Unleash Your Genius." promise life-changing insights, but the video is, like, 9:15 long. You know deep down that there's going to be:
 
-This, my weary friend, is for you.
+- Maybe 3 bullet points of actual info.
+- At least 1 unnecessarily long personal story.
+- Too much dramatic pacing.
+
+Behold: The Solution Lies Below!
+If you like this, visit www.paulkarayan.com or email me (paulkarayanATgmail.com) - I always love to chat.
 
 
-## How it works
+## hosted version - mainly for PK
+
+```
+uvicorn yousum:app --host 127.0.0.1 --port 8000 --reload
+
+# test
+curl http://127.0.0.1:8000/process_transcript/YOUTUBE_SLUG?api_key=YOUR_API_KEY
+
+curl http://127.0.0.1:8000/
+```
+
+
+
+
+## CLI version & broader setup
 
 first, accept that i just like did this and it's shite.
 
