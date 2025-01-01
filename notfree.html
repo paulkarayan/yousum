@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Your Time. Distill YouTube Knowledge in an Instant.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body class="bg-gray-50 flex flex-col items-center justify-center min-h-screen">
+
+  <!-- Header Section -->
+  <div class="max-w-3xl w-full text-center p-6">
+    <h1 class="text-4xl font-bold text-gray-800">Master Your Time.<br/> Instantly Distill YouTube Knowledge.</h1>
+    <p class="text-lg text-gray-600 mt-4">Save 9 minutes. Unleash your genius.</p>
+  </div>
+
+  <!-- Problem and Solution Section -->
+  <div class="max-w-3xl bg-white shadow-lg rounded px-8 py-6 mb-8">
+    <h2 class="text-2xl font-semibold text-gray-700">The Problem:</h2>
+    <p class="text-gray-600 mt-2">YouTube titles like <strong>"Master Your Anxiety. Unleash Your Genius."</strong> promise life-changing insights, but the video is, like, <strong>9:15 long.</strong>  You know deep down that there's going to be:</p>
+    <ul class="list-disc list-inside text-gray-600 mt-4">
+      <li>Maybe 3 bullet points of actual info.</li>
+      <li>At least 1 unnecessarily long personal story.</li>
+      <li>Too much dramatic pacing.</li>
+    </ul>
+    <h3 class="text-2xl font-semibold text-gray-700 mt-6">Behold: The Solution Lies Below!</visit></h3>
+    <p class="text-gray-700 mt-4">
+      If you like this, visit <a href="https://www.paulkarayan.com" target="_blank" class="text-blue-600 underline">www.paulkarayan.com</a> 
+      or <a href="mailto:paulkarayan@gmail.com" class="text-blue-600 underline">email me</a> - always love to chat. 
+      <br>
+  </p>
+  </div>
+<!-- App Interface -->
+<div class="max-w-5xl w-full">
+  <h1 class="text-3xl font-semibold text-center text-gray-800 mb-6">YouTube Transcript Processor</h1>
+  
+  <!-- Input Form -->
+  <div class="bg-white shadow-md rounded px-6 py-8">
+      <form id="youtubeForm" class="space-y-4">
+        <!-- OpenAI Key Section -->
+        <div>
+          <label for="openaiKey" class="block text-sm font-medium text-gray-700">OpenAI API Key</label>
+          <input type="password" id="openaiKey" name="openaiKey" required
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          <div class="mt-2">
+            <button type="button" id="toggleInstructions" class="text-sm text-indigo-500 underline">How to get your OpenAI API key?</button>
+            <div id="instructions" class="hidden mt-2 text-sm text-gray-600 bg-gray-100 rounded p-4">
+              <p>To obtain an OpenAI API key:</p>
+              <ol class="list-decimal list-inside">
+                <li>Visit the <a href="https://platform.openai.com/signup/" target="_blank" class="text-blue-600 underline">OpenAI platform</a>.</li>
+                <li>Log in or create a new account.</li>
+                <li>Go to your account settings by clicking your profile icon in the top right.</li>
+                <li>Select "API Keys" from the menu.</li>
+                <li>Click "Create new secret key" and copy it.</li>
+                <li>Paste the key in the field above.</li>
+              </ol>
+              <br/>
+              <strong>If you have trouble, please email me for a demo/walkthrough!</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- YouTube URL Input -->
+        <div>
+          <label for="youtubeUrl" class="block text-sm font-medium text-gray-700">YouTube video URL</label>
+          <input type="url" id="youtubeUrl" name="youtubeUrl" value="https://www.youtube.com/watch?v=fLVHISUAqLU" required
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        </div>
+        
+        <!-- Submit Button -->
+        <button type="submit"
+                class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded focus:outline-none">
+          Process Transcript
+        </button>
+      </form>
+    
+    <!-- Error/Success Messages -->
+    <div id="messageBox" class="mt-4 hidden p-4 rounded-md flex items-center space-x-2">
+      <!-- Spinner -->
+      <svg id="spinner" class="hidden w-5 h-5 text-indigo-500 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C3.58 0 0 3.58 0 8h4zm2 5.292V16c0 4.42 3.58 8 8 8v-4c-2.21 0-4-1.79-4-4v-1.708l-1.292 1.292a1 1 0 01-1.416 0l-1.292-1.292z"></path>
+      </svg>
+      <span id="messageText"></span>
+    </div>
+  </div>
+
+  <!-- Output Display -->
+  <div id="outputBox" class="bg-white shadow-md rounded px-6 py-8 mt-6 hidden">
+    <h2 class="text-lg font-medium text-gray-800">Processed Output</h2>
+    <pre id="outputContent" class="mt-4 text-sm text-gray-700 whitespace-pre-wrap"></pre>
+  </div>
+</div>
+
+<script>
+  // Toggle instructions visibility
+  const toggleInstructions = document.getElementById("toggleInstructions");
+  const instructions = document.getElementById("instructions");
+
+  toggleInstructions.addEventListener("click", () => {
+    instructions.classList.toggle("hidden");
+  });
+
+  // Form submission handling
+  const form = document.getElementById("youtubeForm");
+  const messageBox = document.getElementById("messageBox");
+  const messageText = document.getElementById("messageText");
+  const spinner = document.getElementById("spinner");
+  const outputBox = document.getElementById("outputBox");
+  const outputContent = document.getElementById("outputContent");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const apiKey = document.getElementById("openaiKey").value.trim();
+    const url = document.getElementById("youtubeUrl").value.trim();
+
+    if (!apiKey) {
+      alert("Please enter your OpenAI API key.");
+      return;
+    }
+
+    const slug = url.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([\w-]+)/) || url.match(/(?:https?:\/\/)?youtu\.be\/([\w-]+)/);
+    if (!slug) {
+      alert("Invalid YouTube URL.");
+      return;
+    }
+
+    try {
+      spinner.classList.remove("hidden");
+      {{/*  const response = await fetch(`http://127.0.0.1:8000/process_transcript/${slug[1]}?api_key=${apiKey}`);
+        */}}
+        const response = await fetch(`https://app.piratehat.io/process_transcript/${slug[1]}?api_key=${apiKey}`);
+    
+        spinner.classList.add("hidden");
+
+      if (!response.ok) {
+        throw new Error("Failed to process transcript.");
+      }
+
+      const data = await response.json();
+      outputBox.classList.remove("hidden");
+      outputContent.textContent = data.output || "No content returned.";
+    } catch (error) {
+      spinner.classList.add("hidden");
+      alert(error.message || "An error occurred.");
+    }
+  });
+</script>
+
+<p>Copyright 2024-infinity - Paul Pereyda Karayan</p>
+</body>
+</html>
