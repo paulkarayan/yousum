@@ -72,6 +72,7 @@ async def process_transcript(slug, api_key):
 
         if not api_key or api_key=="Nope":
             api_key = os.getenv("OPENAI_API_KEY")
+            logging.info("used the free key")
         openai_client = OpenAI(api_key=api_key)
 
         response = openai_client.chat.completions.create(
