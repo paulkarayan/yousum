@@ -91,7 +91,8 @@
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
+    
+    const apiKey = "None"
     const url = document.getElementById("youtubeUrl").value.trim();
 
     const slug = url.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([\w-]+)/) || url.match(/(?:https?:\/\/)?youtu\.be\/([\w-]+)/);
