@@ -102,8 +102,8 @@ async def process_transcript(slug, api_key="Nope"):
 
         return {"output": result}
 
-    except TranscriptsDisabled:
-        logging.error(f"Transcripts are disabled for video: {slug}")
+    except TranscriptsDisabled as e:
+        logging.error(f"Transcripts are disabled for video: {slug}\n {e}")
         raise HTTPException(
             status_code=400, detail="Transcripts are disabled for this video."
         )
