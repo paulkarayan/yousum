@@ -60,7 +60,7 @@ async def serve_index():
 
 # Endpoint to process a YouTube transcript
 @app.get("/process_transcript/{slug}")
-async def process_transcript(slug, api_key):
+async def process_transcript(slug, api_key="Nope"):
     try:
         # Check if the transcript already exists
         if transcript_exists(slug):
