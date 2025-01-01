@@ -95,7 +95,7 @@ async def process_transcript(slug, api_key):
         result = response.choices[0].message.content
 
         logging.info(f"Processed transcript for slug: {slug}")
-        logging.debug(result)
+        logging.info(result)
 
         return {"output": result}
 
@@ -162,7 +162,7 @@ def run_cli():
         result = response.choices[0].message.content
 
         logging.info(f"Processed transcript for CLI slug: {args.slug}")
-        logging.debug(result)
+        logging.info(result)
         return {"output": result}
 
     except TranscriptsDisabled:
