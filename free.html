@@ -40,7 +40,7 @@
       <form id="youtubeForm" class="space-y-4">
         <!-- OpenAI Key Section -->
         <div>
-          <label for="openaiKey" class="block text-sm font-medium text-gray-700">OpenAI API Key (optional)</label>
+          <label for="openaiKey" class="block text-sm font-medium text-gray-700">OpenAI API Key (Optional!)</label>
           <input type="password" id="openaiKey" name="openaiKey"
                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
           <div class="mt-2">
@@ -113,6 +113,7 @@
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const apiKey = document.getElementById("openaiKey").value.trim();
     const url = document.getElementById("youtubeUrl").value.trim();
 
     const slug = url.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([\w-]+)/) || url.match(/(?:https?:\/\/)?youtu\.be\/([\w-]+)/);
