@@ -70,6 +70,7 @@ async def process_transcript(slug, api_key="Nope"):
             # Fetch and save transcript
             transcript_text = save_transcript(slug)
 
+        logging.info(transcript_text)
         if not api_key or api_key=="Nope":
             api_key = os.getenv("OPENAI_API_KEY")
             logging.info("used the free key")
