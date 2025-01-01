@@ -116,11 +116,6 @@
     const apiKey = document.getElementById("openaiKey").value.trim();
     const url = document.getElementById("youtubeUrl").value.trim();
 
-    if (!apiKey) {
-      alert("Please enter your OpenAI API key.");
-      return;
-    }
-
     const slug = url.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([\w-]+)/) || url.match(/(?:https?:\/\/)?youtu\.be\/([\w-]+)/);
     if (!slug) {
       alert("Invalid YouTube URL.");
