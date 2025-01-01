@@ -70,8 +70,7 @@ async def process_transcript(slug, api_key):
             # Fetch and save transcript
             transcript_text = save_transcript(slug)
 
-        # Use the provided OpenAI API key
-        if not api_key:
+        if not api_key or api_key=="Nope":
             api_key = os.getenv("OPENAI_API_KEY")
         openai_client = OpenAI(api_key=api_key)
 
