@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException
+import logging
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -7,6 +8,13 @@ import argparse
 from openai import OpenAI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+
+# Configure logging
+logging.basicConfig(
+    filename="app.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 app = FastAPI()
 
@@ -22,11 +30,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Helper to check if a transcript already exists
 def transcript_exists(slug):
     return os.path.exists(f"{slug}.pk")
-
 
 # Helper to save transcript
 def save_transcript(slug):
@@ -37,10 +43,16 @@ def save_transcript(slug):
         file.write(transcript_text)
     return transcript_text
 
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    response = await call_next(request)
+    logging.info(f"{request.method} {request.url} - Status: {response.status_code}")
+    return response
 
 @app.get("/ping")
-async def root():
-    return {"message": "Hello, World!"}
+async def ping():
+    logging.debug("ping served")
+    return {"message": "Pong"}
 
 @app.get("/")
 async def serve_index():
@@ -59,7 +71,6 @@ async def process_transcript(slug, api_key):
             transcript_text = save_transcript(slug)
 
         # Use the provided OpenAI API key
-
         openai_client = OpenAI(api_key=api_key)
 
         response = openai_client.chat.completions.create(
@@ -83,19 +94,24 @@ async def process_transcript(slug, api_key):
         )
         result = response.choices[0].message.content
 
+        logging.info(f"Processed transcript for slug: {slug}")
+        logging.debug(result)
+
         return {"output": result}
 
     except TranscriptsDisabled:
+        logging.error(f"Transcripts are disabled for video: {slug}")
         raise HTTPException(
             status_code=400, detail="Transcripts are disabled for this video."
         )
     except NoTranscriptFound:
+        logging.error(f"No transcript found for video: {slug}")
         raise HTTPException(
             status_code=404, detail="No transcript found for this video."
         )
     except Exception as e:
+        logging.error(f"Internal error processing video {slug}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
-
 
 # CLI Support
 def run_cli():
@@ -145,15 +161,19 @@ def run_cli():
         )
         result = response.choices[0].message.content
 
+        logging.info(f"Processed transcript for CLI slug: {args.slug}")
+        logging.debug(result)
         return {"output": result}
 
     except TranscriptsDisabled:
+        logging.error(f"CLI: Transcripts are disabled for video: {args.slug}")
         print("Transcripts are disabled for this video.")
     except NoTranscriptFound:
+        logging.error(f"CLI: No transcript found for video: {args.slug}")
         print("No transcript found for this video.")
     except Exception as e:
+        logging.error(f"CLI: An error occurred for video {args.slug}: {str(e)}")
         print(f"An error occurred: {e}")
-
 
 if __name__ == "__main__":
     import sys
