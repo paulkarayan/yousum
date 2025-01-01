@@ -38,28 +38,7 @@
   <!-- Input Form -->
   <div class="bg-white shadow-md rounded px-6 py-8">
       <form id="youtubeForm" class="space-y-4">
-        <!-- OpenAI Key Section -->
-        <div>
-          <label for="openaiKey" class="block text-sm font-medium text-gray-700">OpenAI API Key</label>
-          <input type="password" id="openaiKey" name="openaiKey"
-                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-          <div class="mt-2">
-            <button type="button" id="toggleInstructions" class="text-sm text-indigo-500 underline">How to get your OpenAI API key?</button>
-            <div id="instructions" class="hidden mt-2 text-sm text-gray-600 bg-gray-100 rounded p-4">
-              <p>To obtain an OpenAI API key:</p>
-              <ol class="list-decimal list-inside">
-                <li>Visit the <a href="https://platform.openai.com/signup/" target="_blank" class="text-blue-600 underline">OpenAI platform</a>.</li>
-                <li>Log in or create a new account.</li>
-                <li>Go to your account settings by clicking your profile icon in the top right.</li>
-                <li>Select "API Keys" from the menu.</li>
-                <li>Click "Create new secret key" and copy it.</li>
-                <li>Paste the key in the field above.</li>
-              </ol>
-              <br/>
-              <strong>If you have trouble, please email me for a demo/walkthrough!</strong>
-            </div>
-          </div>
-        </div>
+       
 
         <!-- YouTube URL Input -->
         <div>
@@ -113,7 +92,6 @@
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const apiKey = document.getElementById("openaiKey").value.trim();
     const url = document.getElementById("youtubeUrl").value.trim();
 
     const slug = url.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([\w-]+)/) || url.match(/(?:https?:\/\/)?youtu\.be\/([\w-]+)/);
