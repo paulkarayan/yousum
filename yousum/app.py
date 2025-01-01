@@ -71,6 +71,8 @@ async def process_transcript(slug, api_key):
             transcript_text = save_transcript(slug)
 
         # Use the provided OpenAI API key
+        if not api_key:
+            api_key = os.getenv("OPENAI_API_KEY")
         openai_client = OpenAI(api_key=api_key)
 
         response = openai_client.chat.completions.create(
