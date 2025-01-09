@@ -15,18 +15,17 @@ Behold: The Solution Lies Below!
 If you like this, visit www.paulkarayan.com or email me (paulkarayanATgmail.com) - I always love to chat.
 
 
-## hosted version - mainly for PK
+## run this business...
 
 ```
 uvicorn yousum:app --host 127.0.0.1 --port 8000 --reload
+# then go to http://127.0.0.1:8000/ in your browser
 
-# test
-curl http://127.0.0.1:8000/process_transcript/YOUTUBE_SLUG?api_key=YOUR_API_KEY
 
-curl http://127.0.0.1:8000/
+
+# to test
+curl http://127.0.0.1:8000/process_transcript/_HI0wf6W_xc
 ```
-
-
 
 
 ## CLI version & broader setup
