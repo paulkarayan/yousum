@@ -7,17 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 </head>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-BQ3YLYQESK"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-BQ3YLYQESK');
-</script>
-
 <body class="bg-gray-50 flex flex-col items-center justify-center min-h-screen">
 
   <!-- Header Section -->
@@ -51,8 +40,8 @@
       <form id="youtubeForm" class="space-y-4">
         <!-- OpenAI Key Section -->
         <div>
-          <label for="openaiKey" class="block text-sm font-medium text-gray-700">OpenAI API Key (Optional!)</label>
-          <input type="password" id="openaiKey" name="openaiKey"
+          <label for="openaiKey" class="block text-sm font-medium text-gray-700">OpenAI API Key</label>
+          <input type="password" id="openaiKey" name="openaiKey" required
                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
           <div class="mt-2">
             <button type="button" id="toggleInstructions" class="text-sm text-indigo-500 underline">How to get your OpenAI API key?</button>
@@ -124,8 +113,13 @@
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const apiKey = ""
+    const apiKey = document.getElementById("openaiKey").value.trim();
     const url = document.getElementById("youtubeUrl").value.trim();
+
+    if (!apiKey) {
+      alert("Please enter your OpenAI API key.");
+      return;
+    }
 
     const slug = url.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([\w-]+)/) || url.match(/(?:https?:\/\/)?youtu\.be\/([\w-]+)/);
     if (!slug) {
@@ -137,7 +131,7 @@
       spinner.classList.remove("hidden");
       {{/*  const response = await fetch(`http://127.0.0.1:8000/process_transcript/${slug[1]}?api_key=${apiKey}`);
         */}}
-        const response = await fetch(`https://app.piratehat.io/process_transcript/${slug[1]}?api_key=${apiKey}`);
+        const response = await fetch(`http://app.piratehat.io/process_transcript/${slug[1]}?api_key=${apiKey}`);
     
         spinner.classList.add("hidden");
 
